@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ event.title }} Event Details</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header / Navigation Bar -->
+    <header class="bg-blue-600 text-white py-4">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <h1 class="text-xl font-semibold">Event Management</h1>
+            <nav>
+                <a href="" class="px-4 py-2 text-white hover:bg-blue-700 rounded">Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        
+        <!-- Display Messages (Success, Warning, etc.) -->
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="p-4 mb-2 rounded-md 
+                {% if message.tags == 'success' %} 
+                    bg-green-100 text-green-700 
+                {% elif message.tags == 'warning' %} 
+                    bg-yellow-100 text-yellow-700 
+                {% else %} 
+                    bg-gray-100 text-gray-700 
+                {% endif %}">
+                <div class="text-sm">
+                    {{ message }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Event Title -->
+        <h1 class="text-3xl font-semibold text-gray-900 mb-6">{{ event.title }}</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <!-- Status Tags -->
+                    <div class="flex gap-3 mb-6">
+                        <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm">{{ event.details.category }}</span>
+                        <span class="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm">{{ event.status }}</span>
+                    </div>
+
+                    <!-- RSVP Section -->
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-semibold mb-4">RSVP</h2>
+                        <p class="text-gray-600 mb-2">Total RSVPs: {{ event.rsvps.count }}</p>
+
+                        {% if user.is_authenticated %}
+                            {% if user in event.rsvps.all %}
+                                <p class="text-green-600 font-semibold">✅ You have RSVP'd for this event.</p>
+                                <form action="{% url 'cancel-rsvp' event.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-5 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300">
+                                        Cancel RSVP
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form action="{% url 'rsvp-event' event.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
+                                        RSVP for Event
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <p><a href="{% url 'login' %}" class="text-blue-500 hover:underline">Login to RSVP</a></p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Event Participants -->
+                    <div class="mb-9">
+                        <h2 class="text-2xl font-semibold mb-4">EVENT TEAM</h2>
+                        <div class="space-y-4">
+                            {% for participant in event.assigned_to.all %}
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white text-lg font-semibold">
+                                    {{ participant.username|slice:":1" }}
+                                    
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">{{ participant.username }}</div>
+                                    <div class="text-gray-600">{{ participant.first_name }} {{ participant.last_name }}</div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-gray-500">No participants yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Delete and Edit Buttons -->
+                    <div class="flex gap-4">
+                        <!-- Delete Event Button -->
+                        <form action="{% url 'delete-event' event.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="px-5 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300">
+                                Delete
+                            </button>
+                        </form>
+
+                        <!-- Edit Event Button -->
+                        <a href="{% url 'update-event' event.id %}" class="px-5 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-300">
+                            Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Event Description -->
+                <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+                    <h2 class="text-2xl font-semibold mb-4">EVENT DESCRIPTION</h2>
+                    <p class="text-gray-600">{{ event.description }}</p>
+                </div>
+
+                <!-- Event Image -->
+                <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+                    <h2 class="text-2xl font-semibold mb-4">EVENT IMAGE</h2>
+                    {% if event.details.asset %}
+                        <img src="{{ event.details.asset.url }}" alt="Image Description" class="w-full rounded-lg shadow-md" />
+                    {% else %}
+                        <p>No image available for this event.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Event Date and Time -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-4">EVENT DATE & TIME</h2>
+                    <p class="text-gray-600">Date: {{ event.due_date }}</p>
+                    <p class="text-gray-600">Time: {{ event.time }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 Event Management. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

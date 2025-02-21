@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management System</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <script>
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Navbar -->
+    {% if request.user.is_authenticated %}
+        {% include "logged.html" %}
+    {% else %}
+        {% include "non_logged.html" %}
+    {% endif %}
+
+
+    <main>
+        {% block content %}
+        {% endblock content %}
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 text-center py-6">
+        <p>© 2025 Event Management System. All rights reserved. 🎉</p>
+    </footer>
+
+</body>
+</html>

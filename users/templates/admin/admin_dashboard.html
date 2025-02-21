@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>admin dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-gradient-to-r from-indigo-500 to-blue-600 shadow-md">
+        <nav class="container mx-auto px-6 py-3">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <a href="{% url 'home' %}" class="text-2xl font-extrabold text-white tracking-wide">
+                    Eventify
+                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-6">
+                    <a href="{% url 'admin-dashboard' %}" class="text-white font-semibold hover:text-gray-200 transition">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'group-list' %}" class="text-white font-semibold hover:text-gray-200 transition">
+                        Groups
+                    </a>
+                    <a href="{% url 'create-group' %}" class="text-white font-semibold hover:text-gray-200 transition">
+                        Create Group
+                    </a>
+                </div>
+
+                <!-- User Menu -->
+                <div class="relative flex items-center">
+                    <button id="user-menu-button" class="focus:outline-none flex items-center">
+                        <img class="h-10 w-10 rounded-full border-2 border-white shadow-lg" 
+                            src="https://placekitten.com/100/100" alt="User avatar">
+                    </button>
+
+                    <div id="user-menu" class="absolute right-0 mt-3 w-48 bg-white rounded-lg shadow-lg py-2 hidden opacity-0 transform scale-95 transition-all duration-200">
+                        <a href="" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100">
+                            Profile
+                        </a>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-indigo-100">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <div class="md:hidden ml-4">
+                    <button id="menu-toggle" class="text-white focus:outline-none">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 space-y-2">
+                <a href="{% url 'admin-dashboard' %}" class="block py-2 text-white text-lg font-semibold hover:bg-blue-500 px-4 rounded">
+                    Dashboard
+                </a>
+                <a href="{% url 'group-list' %}" class="block py-2 text-white text-lg font-semibold hover:bg-blue-500 px-4 rounded">
+                    Groups
+                </a>
+                <a href="{% url 'create-group' %}" class="block py-2 text-white text-lg font-semibold hover:bg-blue-500 px-4 rounded">
+                    Create Group
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Content -->
+    <main class="container mx-auto mt-6">
+        {% block content %}
+        {% include "admin/user_list.html" %}
+        {% endblock %}
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile Menu Toggle
+        document.getElementById("menu-toggle").addEventListener("click", function () {
+            document.getElementById("mobile-menu").classList.toggle("hidden");
+        });
+
+        // User Dropdown Menu Toggle with Animation
+        const userMenuButton = document.getElementById("user-menu-button");
+        const userMenu = document.getElementById("user-menu");
+
+        userMenuButton.addEventListener("click", function () {
+            userMenu.classList.toggle("hidden");
+            userMenu.classList.toggle("opacity-0");
+            userMenu.classList.toggle("scale-95");
+        });
+
+        // Close Dropdown When Clicking Outside
+        window.addEventListener("click", function (e) {
+            if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+                userMenu.classList.add("hidden");
+                userMenu.classList.add("opacity-0");
+                userMenu.classList.add("scale-95");
+            }
+        });
+    </script>
+</body>
+</html>

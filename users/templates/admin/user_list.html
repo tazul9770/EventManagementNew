@@ -1,0 +1,32 @@
+<div class="container mx-auto p-6">
+    <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+        <table class="w-full border-collapse">
+            <thead class="text-black">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Number</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Username</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Email</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold uppercase">User ID</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Current Role</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold uppercase text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for user in users %}
+                    <tr class="hover:bg-gray-100 transition">
+                        <td class="px-6 py-4 text-gray-700 text-lg font-medium">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 text-gray-700 text-lg">{{ user.first_name }} {{ user.last_name }}</td>
+                        <td class="px-6 py-4 text-gray-700 text-lg">{{ user.email }}</td>
+                        <td class="px-6 py-4 text-gray-700 text-lg">{{ user.id }}</td>
+                        <td class="px-6 py-4 text-gray-700 text-lg font-semibold">{{ user.group_name}}</td>
+                        <td class="px-6 py-4 text-center">
+                            <a href="{% url 'assign-role' user.id %}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition">
+                                Change Role
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

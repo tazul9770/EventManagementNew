@@ -1,0 +1,43 @@
+
+
+{% extends "base.html" %}
+{% block content %}
+<header class="relative h-[500px] bg-cover bg-center flex items-center justify-center text-center px-4" style="background-image: url('https://source.unsplash.com/1600x900/?event,conference');">
+    <div class="bg-black bg-opacity-50 p-6 rounded-lg max-w-2xl">
+        <h2 class="text-4xl md:text-5xl font-bold text-white">Event Management System</h2>
+        <p class="mt-3 text-lg text-gray-200">Organize and experience seamless event management.</p>
+        <a href="#" class="mt-5 inline-block bg-gradient-to-r from-blue-400 to-blue-600 px-6 py-3 text-lg text-white font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+            Get Started 🚀
+        </a>
+    </div>
+</header>
+
+<section class="max-w-7xl mx-auto py-20 px-6 grid md:grid-cols-3 gap-8 text-center">
+    <!-- Event Planning -->
+    <div class="p-6 bg-white shadow-lg rounded-lg transition hover:shadow-xl">
+        <h3 class="text-xl font-bold mb-2">🎭 Event Planning</h3>
+        <p class="text-gray-600">Effortlessly plan and organize events, from small gatherings to large-scale conferences. Our platform makes event planning intuitive and seamless.</p>
+    </div>
+
+    <!-- Scheduling and Invitations -->
+    <div class="p-6 bg-white shadow-lg rounded-lg transition hover:shadow-xl">
+        <h3 class="text-xl font-bold mb-2">📅 Scheduling & Invitations</h3>
+        <p class="text-gray-600">Easily create event schedules, send invitations, and manage RSVPs in real-time. Our system ensures your event stays on track and organized.</p>
+    </div>
+
+    <!-- Event Analytics -->
+    <div class="p-6 bg-white shadow-lg rounded-lg transition hover:shadow-xl">
+        <h3 class="text-xl font-bold mb-2">📊 Event Analytics</h3>
+        <p class="text-gray-600">Track event performance with real-time analytics. Measure attendee engagement, ticket sales, and overall success for future improvements.</p>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="bg-blue-500 text-white py-16 text-center">
+    <h3 class="text-3xl font-bold">Join & Start Managing Events Today!</h3>
+    <p class="mt-3 text-lg">Create, manage, and attend events with our seamless platform.</p>
+    <a href="#" class="mt-5 inline-block bg-white text-blue-500 px-6 py-3 text-lg rounded-lg hover:bg-gray-100 transition">
+        Get Started Now
+    </a>
+</section>
+{% endblock content %}
