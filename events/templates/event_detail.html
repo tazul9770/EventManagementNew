@@ -59,7 +59,7 @@
 
                         {% if user.is_authenticated %}
                             {% if user in event.rsvps.all %}
-                                <p class="text-green-600 font-semibold">✅ You have RSVP'd for this event.</p>
+                                <p class="text-green-600 font-semibold">You have RSVP'd for this event.</p>
                                 <form action="{% url 'cancel-rsvp' event.id %}" method="post">
                                     {% csrf_token %}
                                     <button type="submit" class="px-5 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300">

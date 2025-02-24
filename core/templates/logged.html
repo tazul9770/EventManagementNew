@@ -1,68 +1,3 @@
-{% comment %} {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Management</title>
-    <link rel="stylesheet" href="{% static 'css/output.css' %}">
-</head>
-<body class="bg-gray-100">
-    <nav class="bg-black p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <!-- Brand Logo -->
-            <a href="{% url 'home' %}" class="text-white text-xl font-bold">Event Management</a>
-            
-            <!-- Mobile Toggle Button -->
-            <button class="lg:hidden text-white focus:outline-none" id="nav-toggle">
-                ☰
-            </button>
-
-            <!-- Navbar Links -->
-            <div class="hidden lg:flex space-x-6 items-center" id="nav-menu">
-                {% if user.is_authenticated %}
-                    {% if user.groups.all.0.name == "Admin" %}
-                        <a href="{% url 'admin-dashboard' %}" class="text-white font-semibold hover:text-gray-400">Admin Dashboard</a>
-                    {% elif user.groups.all.0.name == "Organizer" %}
-                        <a href="{% url 'organizer-dashboard' %}" class="text-white font-semibold hover:text-gray-400">Organizer Dashboard</a>
-                    {% elif user.groups.all.0.name == "User" %}
-                        <a href="{% url 'user-dashboard' %}" class="text-white font-semibold hover:text-gray-400">User Dashboard</a>
-                    {% endif %}
-
-                    <a href="" class="text-white font-semibold hover:text-gray-400">Profile</a>
-
-                    <form action="{% url 'logout' %}" method="POST">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-white text-black font-bold px-4 py-2 rounded hover:bg-gray-300">
-                            Logout
-                        </button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'sign-in' %}" class="bg-white text-black font-bold px-4 py-2 rounded hover:bg-gray-300">
-                        Login
-                    </a>
-                    <a href="{% url 'sign-up' %}" class="bg-white text-black font-bold px-4 py-2 rounded hover:bg-gray-300">
-                        Sign Up
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
-
-    <!-- Page Content -->
-    <div class="container mx-auto mt-6">
-        {% block content %}
-        {% endblock %}
-    </div>
-
-    <!-- Mobile Menu Toggle Script -->
-    <script>
-        document.getElementById('nav-toggle').addEventListener('click', function () {
-            document.getElementById('nav-menu').classList.toggle('hidden');
-        });
-    </script>
-</body>
-</html> {% endcomment %}
 
 <nav class="bg-white shadow-md">
     <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
@@ -79,7 +14,7 @@
                     <a href="{% url 'user-dashboard' %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">User Dashboard</a>
                     {% endif %}
 
-                        <a href="" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Profile</a>
+                        <a href="{% url 'profile' %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Profile</a>
 
                     <form action="{% url 'logout' %}" method="POST">
                         {% csrf_token %}
@@ -89,9 +24,6 @@
                     </form>
                 {% else %}
                 {% endif %}
-            {% comment %} <a href="{% url 'sign-in' %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Admin Dashboard</a>
-            <a href="{% url 'sign-in' %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Profile</a>
-            <a href="{% url 'sign-in' %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Logout</a> {% endcomment %}
         </div>
         
         <!-- Mobile Menu Button -->

@@ -1,5 +1,9 @@
 from django import forms
-from .models import Event, EventDetail, User
+from .models import Event, EventDetail
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 class EventModelForm(forms.ModelForm):
     assigned_to = forms.ModelMultipleChoiceField(

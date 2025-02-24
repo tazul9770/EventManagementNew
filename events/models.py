@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
+from django.conf import settings
 
 class Event(models.Model):
     STATUS_CHOICES = [
@@ -16,7 +16,7 @@ class Event(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    assigned_to = models.ManyToManyField(User, related_name='events', blank=True)
+    assigned_to = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='events', blank=True)
 
     def __str__(self):
         return self.title
@@ -32,5 +32,5 @@ class EventDetail(models.Model):
         return f"Details for {self.event.title}"
 
 class RSVP(models.Model):
-    user = models.ManyToManyField(User, related_name="rsvps")
+    user = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="rsvps")
     event = models.ManyToManyField(Event, related_name="rsvps")

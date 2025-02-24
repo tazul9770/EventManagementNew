@@ -6,6 +6,10 @@ from django.contrib import messages
 from events.models import RSVP
 from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
 from django.http import Http404
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
 
 def is_organizer(user):
     return user.groups.filter(name="Organizer").exists()
@@ -13,120 +17,144 @@ def is_organizer(user):
 def dashboard(request):
     return render(request, 'dashboard/dashboard.html')
 
-@user_passes_test(is_organizer, login_url='no-permission')
-def organizer_dashboard(request):
-    type = request.GET.get('type', 'all')
-    counts = Event.objects.aggregate(
-        total = Count('id'),
-        ongoing = Count('id', filter=Q(status='ONGOING')),
-        completed = Count('id', filter=Q(status='COMPLETED')),
-        upcoming = Count('id', filter=Q(status='UPCOMING'))
-    )
-    base_query = Event.objects.prefetch_related('assigned_to')
-    if type == 'upcoming':
-        events = base_query.filter(status='UPCOMING')
-    elif type == 'ongoing':
-        events = base_query.filter(status='ONGOING')
-    elif type == 'completed':
-        events = base_query.filter(status='COMPLETED')
-    elif type == 'all':
-        events = base_query.all()
-    else:
-        events = base_query.none()
+@method_decorator(user_passes_test(is_organizer, login_url='no-permission'), name='dispatch')
+class OrganizerDashboard(View):
+    def get(self, request):
+        type = request.GET.get('type', 'all')
+        counts = Event.objects.aggregate(
+            total=Count('id'),
+            ongoing=Count('id', filter=Q(status='ONGOING')),
+            completed=Count('id', filter=Q(status='COMPLETED')),
+            upcoming=Count('id', filter=Q(status='UPCOMING'))
+        )
 
-    context = {
-        "events":events,
-        "counts":counts
-    }
-    return render(request, 'dashboard/organizer_dash.html', context)
+        base_query = Event.objects.prefetch_related('assigned_to')
+        
+        if type == 'upcoming':
+            events = base_query.filter(status='UPCOMING')
+        elif type == 'ongoing':
+            events = base_query.filter(status='ONGOING')
+        elif type == 'completed':
+            events = base_query.filter(status='COMPLETED')
+        elif type == 'all':
+            events = base_query.all()
+        else:
+            events = base_query.none()
 
-@login_required
-def user_dashboard(request):
-    type = request.GET.get('type', 'all')
-    counts = Event.objects.aggregate(
-        total = Count('id'),
-        ongoing = Count('id', filter=Q(status='ONGOING')),
-        completed = Count('id', filter=Q(status='COMPLETED')),
-        upcoming = Count('id', filter=Q(status='UPCOMING'))
-    )
-    base_query = Event.objects.prefetch_related('assigned_to')
-    if type == 'upcoming':
-        events = base_query.filter(status='UPCOMING')
-    elif type == 'ongoing':
-        events = base_query.filter(status='ONGOING')
-    elif type == 'completed':
-        events = base_query.filter(status='COMPLETED')
-    elif type == 'all':
-        events = base_query.all()
-    else:
-        events = base_query.none()
+        context = {
+            "events": events,
+            "counts": counts
+        }
+        return render(request, 'dashboard/organizer_dash.html', context)
+    
 
-    context = {
-        "events":events,
-        "counts":counts
-    }
-    return render(request, 'dashboard/user_dash.html', context)
+@method_decorator(login_required(login_url='login'), name='dispatch') 
+class UserDashboard(View):
+    def get(self, request):
+        type = request.GET.get('type', 'all')
+        counts = Event.objects.aggregate(
+            total=Count('id'),
+            ongoing=Count('id', filter=Q(status='ONGOING')),
+            completed=Count('id', filter=Q(status='COMPLETED')),
+            upcoming=Count('id', filter=Q(status='UPCOMING'))
+        )
 
-@login_required
-#@permission_required('events.add_event', login_url='no-permission')
-def create_event(request):
-    form = EventModelForm()
-    detail_form = EventDetailForm()
-    if request.method == 'POST':
+        base_query = Event.objects.prefetch_related('assigned_to')
+        
+        if type == 'upcoming':
+            events = base_query.filter(status='UPCOMING')
+        elif type == 'ongoing':
+            events = base_query.filter(status='ONGOING')
+        elif type == 'completed':
+            events = base_query.filter(status='COMPLETED')
+        elif type == 'all':
+            events = base_query.all()
+        else:
+            events = base_query.none()
+
+        context = {
+            "events": events,
+            "counts": counts
+        }
+        return render(request, 'dashboard/user_dash.html', context)
+
+@method_decorator(login_required, name='dispatch')   
+class CreateEvent(View):
+    def get(self,  request):
+        form = EventModelForm()
+        detail_form = EventDetailForm()
+        return render(request, 'event_form.html', {"form":form, "detail_form": detail_form})
+    def post(self, request):
         form = EventModelForm(request.POST)
         detail_form = EventDetailForm(request.POST, request.FILES)
-        if form.is_valid() and detail_form.is_valid():
+        if form.is_valid and detail_form.is_valid():
             event = form.save()
             event_detail = detail_form.save(commit=False)
             event_detail.event = event
             event_detail.save()
-            messages.success(request, "Event Created Successfully!")
+            messages.success(request, "Event created successfully!")
             return redirect('create-event')
-    return render(request, 'event_form.html', {"form":form, 'detail_form':detail_form})
+        return render(request, 'event_form.html', {"form":form, "detail_form": detail_form})
 
+@method_decorator(login_required, name='dispatch')   
+class UpdateEvent(View):
+    def get(self, request, id):
+        try:
+            event = Event.objects.get(id=id)
+        except Event.DoesNotExist:
+            messages.error(request, "Event not found!")
 
-@login_required
-#@permission_required('events.change_event', login_url='no-permission')
-def update_event(request, id):
-    event = Event.objects.get(id=id)
-    form = EventModelForm(instance=event)
-    if event.details:
-        detail_form = EventDetailForm(instance=event.details)
-    if request.method == 'POST':
+        form = EventModelForm(instance=event)
+        event_details_instance = event.details if hasattr(event, 'details') else None
+        detail_form = EventDetailForm(instance=event_details_instance)
+        
+        return render(request, 'event_form.html', {"form": form, "detail_form": detail_form})
+
+    def post(self, request, id):
+        try:
+            event = Event.objects.get(id=id)
+        except Event.DoesNotExist:
+            messages.error(request, "Event not found!")
+            return redirect('some-view-name')
+
         form = EventModelForm(request.POST, instance=event)
-        detail_form = EventDetailForm(request.POST, instance=event.details)
+        event_details_instance = event.details if hasattr(event, 'details') else None
+        detail_form = EventDetailForm(request.POST, instance=event_details_instance)
+
         if form.is_valid() and detail_form.is_valid():
             event = form.save()
             event_detail = detail_form.save(commit=False)
             event_detail.event = event
             event_detail.save()
-            messages.success(request, "Event updated Successfully!")
-            return redirect('update-event', id)
-    return render(request, 'event_form.html', {"form":form, 'detail_form':detail_form})
+            
+            messages.success(request, "Event updated successfully!")
+            return redirect('update-event', id=id)
+        
+        return render(request, 'event_form.html', {"form": form, "detail_form": detail_form})
 
-@login_required
-@permission_required('events.delete_event', login_url='no-permission')
-def delete_event(request, id):
-    if request.method == 'POST':
-        event = Event.objects.get(id=id)
-        event.delete()
-        messages.success(request, "Event deleted successfully")
+class DeleteEvent(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'events.delete_event'
+    login_url = 'no-permission'
+    def post(self, request, id):
+        try:
+            event = Event.objects.get(id=id)
+            event.delete()
+            messages.success(request, "Event deleted successfully!")
+        except Event.DoesNotExist:
+            messages.error(request, "Event Not found")
         return redirect('organizer-dashboard')
-    else:
-        messages.success(request, "Something wrong!")
-        return redirect('organizer-dashboard')
+    
+class EventDetail(View):
+    def get(self, request, id):
+        try:
+            event = Event.objects.select_related("details").prefetch_related("assigned_to", "rsvps__user").get(id=id)
+        except Event.DoesNotExist:
+            raise Http404("Event not found")
 
-def event_detail(request, id):
-    try:
-        event = Event.objects.select_related("details").prefetch_related("assigned_to", "rsvps__user").get(id=id)
-    except Event.DoesNotExist:
-        raise Http404("Event not found")
-    rsvp_users = RSVP.objects.filter(event=event).prefetch_related("user")
+        rsvp_users = RSVP.objects.filter(event=event).prefetch_related("user")
 
-    context = {
-        "event": event,
-        "rsvp_users": rsvp_users,
-    }
-
-    return render(request, 'event_detail.html', context)
-
+        context = {
+            "event": event,
+            "rsvp_users": rsvp_users,
+        }
+        return render(request, 'event_detail.html', context)

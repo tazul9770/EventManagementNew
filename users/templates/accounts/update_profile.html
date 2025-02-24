@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-10">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Edit Profile</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        
+        <div>
+            <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" id="id_email" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value="{{ form.email.value }}">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="id_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                <input type="text" name="first_name" id="id_first_name" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value="{{ form.first_name.value }}">
+            </div>
+            <div>
+                <label for="id_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                <input type="text" name="last_name" id="id_last_name" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value="{{ form.last_name.value }}">
+            </div>
+        </div>
+
+        <div>
+            <label for="id_bio" class="block text-sm font-medium text-gray-700">Bio</label>
+            <textarea name="bio" id="id_bio" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">{{ form.bio.value }}</textarea>
+        </div>
+
+        <div>
+            <label for="id_profile_image" class="block text-sm font-medium text-gray-700">Profile Image</label>
+            <input type="file" name="profile_image" id="id_profile_image" class="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300">
+            {% if form.instance.profile_image %}
+                <img src="{{ form.instance.profile_image.url }}" alt="Profile Image" class="mt-4 w-24 h-24 rounded-full object-cover">
+            {% endif %}
+        </div>
+
+        <div class="mt-6 flex justify-end">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
