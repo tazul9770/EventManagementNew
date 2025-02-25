@@ -89,16 +89,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('DB_NAME', default = ''),
+#         'USER': config('DB_USER', default = ''),
+#         'PASSWORD': config('DB_PASSWORD', default = ''), 
+#         'HOST': config('DB_HOST', default = 'localhost'),  
+#         'PORT': config('DB_PORT', cast=int),           
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default = ''),
-        'USER': config('DB_USER', default = ''),
-        'PASSWORD': config('DB_PASSWORD', default = ''), 
-        'HOST': config('DB_HOST', default = 'localhost'),  
-        'PORT': config('DB_PORT', cast=int),           
-    }
+    'default': dj_database_url.config(
+        default='postgresql://mydb_dcwe_user:O6jPuzpRE3a0cvrG8XcbAvgKTRFNJ3Up@dpg-cuujfj5ds78s73avvhg0-a.oregon-postgres.render.com/mydb_dcwe',
+        conn_max_age=600
+    )
 }
+
 
 
 # Password validation
